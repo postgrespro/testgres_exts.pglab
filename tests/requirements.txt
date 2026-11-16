@@ -1,2 +1,2 @@
 pytest
-testgres>=1.17,<1.18
+testgres>=1.17,<1.19

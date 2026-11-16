@@ -51,7 +51,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "testgres>=1.17,<1.18",
+    "testgres>=1.17,<1.19",
 ]
 
 [project.optional-dependencies]
