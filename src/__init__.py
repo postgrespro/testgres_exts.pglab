@@ -9,6 +9,7 @@ import signal
 import shutil
 import stat
 import subprocess
+import typing
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -48,10 +49,14 @@ def _check_testgres_api():
 
 
 def _run(cmd, check=True, capture=False):
-    kwargs = {"check": check, "text": True}
-    if capture:
-        kwargs.update(stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    return subprocess.run(list(cmd), **kwargs)
+    pipe = subprocess.PIPE if capture else None
+    return subprocess.run(
+        list(cmd),
+        check=check,
+        text=True,
+        stdout=pipe,
+        stderr=pipe,
+    )
 
 
 def _which(name):
@@ -111,10 +116,7 @@ class CgroupIOBackend:
         cgroup.rmdir()
 
     def cleanup_root(self):
-        try:
-            self.root.rmdir()
-        except OSError:
-            pass
+        raise NotImplementedError
 
 
 class CgroupV2IO(CgroupIOBackend):
@@ -161,6 +163,12 @@ class CgroupV2IO(CgroupIOBackend):
         except OSError:
             pass
 
+    def cleanup_root(self):
+        try:
+            self.root.rmdir()
+        except OSError:
+            pass
+
 
 class CgroupV1Blkio(CgroupIOBackend):
     version = 1
@@ -193,6 +201,12 @@ class CgroupV1Blkio(CgroupIOBackend):
 
     def membership_file(self, cgroup):
         return cgroup / "tasks"
+
+    def cleanup_root(self):
+        try:
+            self.root.rmdir()
+        except OSError:
+            pass
 
 
 def detect_cgroup_io_backend():
@@ -236,14 +250,17 @@ class NamespaceOperations(LocalOperations):
         # runuser.
         self._username = db_user
 
-    def environ(self, name):
+    def environ(
+        self,
+        var_name: str,
+    ) -> typing.Optional[str]:
         # target_os_ops may be asked to resolve PostgreSQL binaries while a
         # replica is being cloned.  Expose the PgLab-specific bin directory to
         # Testgres without requiring the caller to mutate the process-wide
         # PG_BIN environment variable.
-        if name == "PG_BIN" and self.pg_bin is not None:
+        if var_name == "PG_BIN" and self.pg_bin is not None:
             return self.pg_bin
-        return super().environ(name)
+        return super().environ(var_name)
 
     def mkdtemp(self, prefix=None):
         assert prefix is None or type(prefix) is str
@@ -473,7 +490,7 @@ class PgLab:
         self.os_user = os_user
         self.db_superuser = db_superuser or os_user
         self.keep_data = keep_data
-        self.nodes = {}  # type: Dict[str, LabNode]
+        self.nodes: typing.Dict[str, LabNode] = {}
         self._created_bridge = False
         self._closed = False
         self._firewall_backend = None
