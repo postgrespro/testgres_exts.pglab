@@ -50,6 +50,10 @@ except metadata.PackageNotFoundError:
 node_mod = importlib.import_module("testgres.node")
 backup_mod = importlib.import_module("testgres.backup")
 
+assert type(node_mod.__file__) is str
+assert type(backup_mod.__file__) is str
+assert type(pglab.__file__) is str
+
 print("Python:            {}".format(sys.version.split()[0]))
 print("Testgres:          {}".format(testgres_ver))
 print("Testgres node:     {}".format(Path(node_mod.__file__).resolve()))
