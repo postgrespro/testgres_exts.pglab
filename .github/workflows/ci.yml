@@ -63,7 +63,7 @@ jobs:
         python -m pip install pyright
         python -m pip install -r tests/requirements.txt
     - name: Type check with pyright
-      run: pyright src tests
+      run: pyright .
       
   build-check:
     runs-on: ubuntu-latest
