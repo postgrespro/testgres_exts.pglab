@@ -9,6 +9,7 @@ import signal
 import shutil
 import stat
 import subprocess
+import typing
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -489,7 +490,7 @@ class PgLab:
         self.os_user = os_user
         self.db_superuser = db_superuser or os_user
         self.keep_data = keep_data
-        self.nodes = {}  # type: Dict[str, LabNode]
+        self.nodes: typing.Dict[str, LabNode] = {}
         self._created_bridge = False
         self._closed = False
         self._firewall_backend = None
