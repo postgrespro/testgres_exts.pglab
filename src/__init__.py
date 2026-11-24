@@ -48,10 +48,14 @@ def _check_testgres_api():
 
 
 def _run(cmd, check=True, capture=False):
-    kwargs = {"check": check, "text": True}
-    if capture:
-        kwargs.update(stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    return subprocess.run(list(cmd), **kwargs)
+    pipe = subprocess.PIPE if capture else None
+    return subprocess.run(
+        list(cmd),
+        check=check,
+        text=True,
+        stdout=pipe,
+        stderr=pipe,
+    )
 
 
 def _which(name):
