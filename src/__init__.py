@@ -115,10 +115,7 @@ class CgroupIOBackend:
         cgroup.rmdir()
 
     def cleanup_root(self):
-        try:
-            self.root.rmdir()
-        except OSError:
-            pass
+        raise NotImplementedError
 
 
 class CgroupV2IO(CgroupIOBackend):
@@ -165,6 +162,12 @@ class CgroupV2IO(CgroupIOBackend):
         except OSError:
             pass
 
+    def cleanup_root(self):
+        try:
+            self.root.rmdir()
+        except OSError:
+            pass
+
 
 class CgroupV1Blkio(CgroupIOBackend):
     version = 1
@@ -197,6 +200,12 @@ class CgroupV1Blkio(CgroupIOBackend):
 
     def membership_file(self, cgroup):
         return cgroup / "tasks"
+
+    def cleanup_root(self):
+        try:
+            self.root.rmdir()
+        except OSError:
+            pass
 
 
 def detect_cgroup_io_backend():
