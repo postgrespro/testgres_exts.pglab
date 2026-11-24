@@ -249,14 +249,17 @@ class NamespaceOperations(LocalOperations):
         # runuser.
         self._username = db_user
 
-    def environ(self, name):
+    def environ(
+        self,
+        var_name: str,
+    ) -> typing.Optional[str]:
         # target_os_ops may be asked to resolve PostgreSQL binaries while a
         # replica is being cloned.  Expose the PgLab-specific bin directory to
         # Testgres without requiring the caller to mutate the process-wide
         # PG_BIN environment variable.
-        if name == "PG_BIN" and self.pg_bin is not None:
+        if var_name == "PG_BIN" and self.pg_bin is not None:
             return self.pg_bin
-        return super().environ(name)
+        return super().environ(var_name)
 
     def mkdtemp(self, prefix=None):
         assert prefix is None or type(prefix) is str
