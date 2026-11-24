@@ -21,7 +21,7 @@ from testgres.operations.local_ops import LocalOperations
 import tempfile
 
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 
 class PgLabError(RuntimeError):
